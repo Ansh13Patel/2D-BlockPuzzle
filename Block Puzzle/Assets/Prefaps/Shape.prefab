@@ -26,7 +26,7 @@ RectTransform:
   m_GameObject: {fileID: 3496617289029632104}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -50,4 +50,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   squareShapeImage: {fileID: 2434591365594612029, guid: ff731477f5ddddc4aac83c3b69977c56, type: 3}
-  currentShapeData: {fileID: 11400000, guid: 8f7a3adf3c9d87449ba745a4ea8eff38, type: 2}
+  shapeSelectedScale: {x: 0.9, y: 0.9, z: 0.9}
+  offset: {x: 0, y: 800}
+  currentShapeData: {fileID: 11400000, guid: 4219263982e042647aaa0bd75fe5766d, type: 2}

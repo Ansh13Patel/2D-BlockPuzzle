@@ -2,19 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Shape : MonoBehaviour
+public class Shape : MonoBehaviour, IPointerClickHandler, IPointerUpHandler, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public GameObject squareShapeImage;
+    public Vector3 shapeSelectedScale;
+    public Vector2 offset = new Vector2(0, 500);
 
-    //[HideInInspector]
+    [HideInInspector]
     public ShapeData currentShapeData;
 
-    private List<GameObject> _currentShape = new List<GameObject>();
+    private List<GameObject> _currentSquareShape = new List<GameObject>();
+    private Vector3 _shapeStartScale;
+    private bool _shapeDraggable = true;
+    private RectTransform _transform;
+    private Canvas _canvas;
 
-    void Start()
+    void Awake()
     {
-        RequestNewShape(currentShapeData);
+        _shapeStartScale = this.GetComponent<RectTransform>().localScale;
+        _shapeDraggable = true;
+        _transform = this.GetComponent<RectTransform>();
+        _canvas = this.GetComponentInParent<Canvas>();
     }
 
     public void RequestNewShape(ShapeData shapeData)
@@ -22,16 +32,16 @@ public class Shape : MonoBehaviour
         CreateShape(shapeData);
     }
 
-    public void CreateShape(ShapeData shapeData)
+    private void CreateShape(ShapeData shapeData)
     {
         currentShapeData = shapeData;
         var totalSquareImage = GetNumberofSquare(shapeData);
 
-        while (_currentShape.Count <= totalSquareImage)
+        while (_currentSquareShape.Count < totalSquareImage)
         {
-            _currentShape.Add(Instantiate(squareShapeImage, transform) as GameObject);
+            _currentSquareShape.Add(Instantiate(squareShapeImage, transform) as GameObject);
         }
-        foreach (var square in _currentShape)
+        foreach (var square in _currentSquareShape)
         {
             square.gameObject.transform.position = Vector3.zero;
             square.gameObject.SetActive(false);
@@ -49,8 +59,8 @@ public class Shape : MonoBehaviour
             {
                 if (shapeData.board[row].column[column])
                 {
-                    _currentShape[currentIndexInList].SetActive(true);
-                    _currentShape[currentIndexInList].GetComponent<RectTransform>().localPosition =
+                    _currentSquareShape[currentIndexInList].SetActive(true);
+                    _currentSquareShape[currentIndexInList].GetComponent<RectTransform>().localPosition =
                         new Vector2(GetXPositionForSquareShape(shapeData, column, moveDistance),
                         GetYPositionSquareShape(shapeData, row, moveDistance));
 
@@ -173,5 +183,45 @@ public class Shape : MonoBehaviour
         }
 
         return numberOfSquare;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        this.GetComponent<RectTransform>().localScale = _shapeStartScale;
+        GameEvent.checkIfShapeCanBePlace();
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        _transform.anchorMin = new Vector2(0, 0);
+        _transform.anchorMax = new Vector2(0, 0);
+        _transform.pivot = new Vector2(0, 0);
+
+        Vector2 pos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvas.transform as RectTransform, eventData.position, Camera.main, out pos);
+
+        _transform.localPosition = pos + offset;
+
+        GameEvent.validBlockToPlaceShape();
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        this.GetComponent<RectTransform>().localScale = shapeSelectedScale;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+
     }
 }

@@ -14,6 +14,17 @@ public class Grid : MonoBehaviour
     private Vector2 offset = new Vector2(0, 0);
     private List<GameObject> _gridSquares = new List<GameObject>();
 
+    private void OnEnable()
+    {
+        GameEvent.checkIfShapeCanBePlace += checkIfShapeCanBePlace;
+        GameEvent.validBlockToPlaceShape += validBlockToPlaceShape;
+    }
+
+    private void OnDisable()
+    {
+        GameEvent.checkIfShapeCanBePlace -= checkIfShapeCanBePlace;
+        GameEvent.validBlockToPlaceShape -= validBlockToPlaceShape;
+    }
 
     void Start()
     {
@@ -62,6 +73,41 @@ public class Grid : MonoBehaviour
             square.GetComponent<RectTransform>().transform.localPosition = new Vector3(startPosition.x + pos_offset_x, startPosition.y - pos_offset_y, 0.0f);
 
             column_number++;
+        }
+    }
+
+    private void checkIfShapeCanBePlace()
+    {
+        foreach(var sqaure in _gridSquares)
+        {
+            var gridSquare = sqaure.GetComponent<GridSquare>(); 
+            if(gridSquare.shapeCanBePlace())
+                gridSquare.ActivateImage(); 
+        }
+    }
+
+    private void validBlockToPlaceShape()
+    {
+        List<GridSquare> selectedSquare = new List<GridSquare>();
+        bool isValid = true;
+
+        foreach (var square in _gridSquares)
+        {
+            var gridSquare = square.GetComponent<GridSquare>(); 
+            if(gridSquare.selected)
+            {
+                selectedSquare.Add(gridSquare);
+                if(gridSquare.squareOccupied)
+                    isValid = false;    
+            }   
+        }
+
+        if(!isValid)
+        {
+            foreach(var square in selectedSquare)
+            {
+                square.DeselectSquare();    
+            }
         }
     }
 }
